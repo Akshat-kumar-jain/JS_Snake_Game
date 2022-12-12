@@ -3,6 +3,7 @@ function init(){
     W = H = canvas.width = canvas.height = 1000;
     pen = canvas.getContext('2d');
     cellSize = cs = 67;
+
     snake = {
         init_len:5,
         color:"blue",
