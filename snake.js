@@ -2,8 +2,18 @@ function init(){
     var canvas = document.getElementById('mycanvas');
     W = H = canvas.width = canvas.height = 1000;
     pen = canvas.getContext('2d');
-    cellSize = cs = 67;
+    cellSize = cs = 50;
+    game_over = false;
+    score = 0;
 
+    // Create a Image Object for Food
+    food_img = new Image();
+    food_img.src = "Assets/apple.png";
+
+    trophy = new Image();
+    trophy.src = "Assets/trophy.png";
+
+    food = getRandomFood();
     snake = {
         init_len:5,
         color:"blue",
@@ -20,18 +30,33 @@ function init(){
 
             for(var i = 0;i<this.cells.length;i++){
                 pen.fillStyle = this.color;
-            pen.fillRect(this.cells[i].x*50,this.cells[i].y*50,cs - 20,cs)
+            pen.fillRect(this.cells[i].x*50,this.cells[i].y*50,cs - 15,cs - 15)
             }
         },
 
         updateSnake:function(){
-            console.log("updateSnake according to the direction property");
+            //console.log("updateSnake according to the direction property");
+            //check if snake has eaten food, increase the length of the snake
+            // generate new food object
 
-
-            this.cells.pop();
 
             var headX = this.cells[0].x;
             var headY = this.cells[0].y;
+
+            if(headX == food.x && headY==food.y){
+                console.log("Food eaten");
+                score++;
+                food = getRandomFood();
+
+            }
+            else{
+                this.cells.pop();
+            }
+
+
+            
+
+            
             var nextX,nextY;
 
             if(this.direction=="right"){
@@ -53,6 +78,15 @@ function init(){
             /*var X = headX + 1;
             var Y = headY;*/
             this.cells.unshift({x:nextX,y:nextY});
+
+
+            /*Write the logic that prevents snake from going out*/
+            var last_x = Math.round(W/cs);
+            var last_y = Math.round(W/cs);
+           
+            if (this.cells[0].y<0 || this.cells[0].x<0 || this.cells[0].x > last_x || this.cells[0].y > last_y ){
+                game_over = true;
+            }
         }
     };
 
@@ -85,13 +119,36 @@ function draw(){
     // erase the old frame
     pen.clearRect(0,0,W,H);
     snake.drawSnake();
+    pen.fillStyle = food.color;
+    pen.drawImage(food_img,food.x*cs,food.y*cs,cs ,cs);
+
+    pen.drawImage(trophy,cs - 35,cs - 30);
+    pen.fillStyle="Blue";
+    pen.font ="20px Roboto";
+    pen.fillText(score,55,50);
 }
 
 function update(){
     snake.updateSnake();
 }
+ 
+function getRandomFood(){
+    var foodX = Math.round(Math.random()*(W-cs)/cs);
+    var foodY = Math.round(Math.random()*(H-cs)/cs);
 
+    var food = {
+        x:foodX,
+        y:foodY,
+        color:"red",
+    }
+
+    return food;
+}
 function gameloop(){
+    if(game_over == true){
+        clearInterval(f);
+        alert("Game_Over");
+    }
     draw();
     update();
 }
